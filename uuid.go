@@ -45,7 +45,7 @@ const (
 )
 
 // New generates and returns a new UUID
-func New() (UUID, error) {
+func NewUUID() (UUID, error) {
 	return generateV4()
 }
 

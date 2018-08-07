@@ -30,6 +30,7 @@ Use the 'go' command:
     // Create a UUID from an existing byte slice
     // The slice must contain exactly 16 bytes
     uuid, err := FromBytes([]byte{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8})
+```
 
 See [tests](https://github.com/taylorza/go-uuid/blob/master/uuid_test.go) for more examples
 

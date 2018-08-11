@@ -23,11 +23,11 @@
 package uuid
 
 import (
-	"fmt"
 	"testing"
 )
 
 var testBytes = []byte{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8}
+var testUUID = UUID{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8}
 
 func TestNewUUID(t *testing.T) {
 	uuid, err := NewUUID()
@@ -50,7 +50,7 @@ func TestFromBytes(t *testing.T) {
 		t.Fatalf("failed to create UUID from bytes")
 	}
 
-	if err := testUUID(uuid); err != nil {
+	if uuid != testUUID {
 		t.Fatalf("failed to create UUID from bytes correctly")
 	}
 }
@@ -61,7 +61,7 @@ func TestParse(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testUUID(uuid); err != nil {
+	if uuid != testUUID {
 		t.Fatalf("failed to parse UUID string")
 	}
 }
@@ -72,7 +72,7 @@ func TestParseWithBrace(t *testing.T) {
 		t.Fatalf("faile to parse UUID string with braces : %v", err)
 	}
 
-	if err := testUUID(uuid); err != nil {
+	if uuid != testUUID {
 		t.Fatalf("failed to parse UUID string with braces")
 	}
 }
@@ -134,28 +134,6 @@ func TestFormatWithBracesAndUpperCase(t *testing.T) {
 	}
 }
 
-func testUUID(uuid UUID) error {
-	if uuid[0] != testBytes[0] ||
-		uuid[1] != testBytes[1] ||
-		uuid[2] != testBytes[2] ||
-		uuid[3] != testBytes[3] ||
-		uuid[4] != testBytes[4] ||
-		uuid[5] != testBytes[5] ||
-		uuid[6] != testBytes[6] ||
-		uuid[7] != testBytes[7] ||
-		uuid[8] != testBytes[8] ||
-		uuid[9] != testBytes[9] ||
-		uuid[10] != testBytes[10] ||
-		uuid[11] != testBytes[11] ||
-		uuid[12] != testBytes[12] ||
-		uuid[13] != testBytes[13] ||
-		uuid[14] != testBytes[14] ||
-		uuid[15] != testBytes[15] {
-		return fmt.Errorf("uuid did not match reference value")
-	}
-	return nil
-}
-
 var (
 	benchmarkedUUID    UUID
 	benchmarkedUUIDStr string
@@ -165,16 +143,6 @@ func BenchmarkNewUUID(b *testing.B) {
 	var uuid UUID
 	for n := 0; n < b.N; n++ {
 		uuid, _ = NewUUID()
-	}
-	benchmarkedUUID = uuid
-}
-
-func BenchmarkNewUUID2(b *testing.B) {
-	var uuid UUID
-	for n := 0; n < b.N; n++ {
-		var myid UUID
-		myid, _ = NewUUID()
-		uuid = myid
 	}
 	benchmarkedUUID = uuid
 }
@@ -209,6 +177,19 @@ func BenchmarkFormatUpperWithBraces(b *testing.B) {
 	var uuidStr string
 	for n := 0; n < b.N; n++ {
 		uuidStr = guid.Format(UpperCase | WithBraces)
+	}
+	benchmarkedUUIDStr = uuidStr
+}
+
+func BenchmarkFormat(b *testing.B) {
+	guid, err := NewUUID()
+	if err != nil {
+		b.Fatalf("failed to create test UUID")
+	}
+
+	var uuidStr string
+	for n := 0; n < b.N; n++ {
+		uuidStr = guid.Format(None)
 	}
 	benchmarkedUUIDStr = uuidStr
 }

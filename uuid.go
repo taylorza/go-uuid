@@ -26,7 +26,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"strings"
 )
 
 // UUID is a universally unique identifier
@@ -44,7 +43,7 @@ const (
 	UpperCase
 )
 
-// New generates and returns a new UUID
+// NewUUID generates and returns a new UUID
 func NewUUID() (UUID, error) {
 	return generateV4()
 }
@@ -74,25 +73,29 @@ func Parse(value string) (UUID, error) {
 		}
 		value = value[1:37]
 	}
-	parts := strings.Split(value, "-")
-
-	if len(parts) != 5 ||
-		len(parts[0]) != 8 ||
-		len(parts[1]) != 4 ||
-		len(parts[2]) != 4 ||
-		len(parts[3]) != 4 ||
-		len(parts[4]) != 12 {
+	if value[8] != '-' ||
+		value[13] != '-' ||
+		value[18] != '-' ||
+		value[23] != '-' {
 		return uuid, fmt.Errorf("invalid UUID string format")
 	}
 
-	hexstr := strings.Join(parts, "")
-	uuidBytes, err := hex.DecodeString(hexstr)
-
-	if err != nil {
-		return uuid, err
+	if _, err := hex.Decode(uuid[0:], []byte(value[0:8])); err != nil {
+		return uuid, fmt.Errorf("invalid UUID : %v", err)
+	}
+	if _, err := hex.Decode(uuid[4:], []byte(value[9:13])); err != nil {
+		return uuid, fmt.Errorf("invalid UUID : %v", err)
+	}
+	if _, err := hex.Decode(uuid[6:], []byte(value[14:18])); err != nil {
+		return uuid, fmt.Errorf("invalid UUID : %v", err)
+	}
+	if _, err := hex.Decode(uuid[8:], []byte(value[19:23])); err != nil {
+		return uuid, fmt.Errorf("invalid UUID : %v", err)
+	}
+	if _, err := hex.Decode(uuid[10:], []byte(value[24:36])); err != nil {
+		return uuid, fmt.Errorf("invalid UUID : %v", err)
 	}
 
-	copy(uuid[0:], uuidBytes)
 	return uuid, nil
 }
 
@@ -103,27 +106,46 @@ func (uuid UUID) String() string {
 
 // Format returns the UUID formated as a string according to the format flags specied
 func (uuid UUID) Format(flags FmtFlags) string {
-	const (
-		defaultFmtStr   = "%08x-%04x-%04x-%04x-%12x"
-		uppercaseFmtStr = "%08X-%04X-%04X-%04X-%12X"
-	)
-
-	var fmtstr = defaultFmtStr
-	if flags&UpperCase == UpperCase {
-		fmtstr = uppercaseFmtStr
-	}
-
+	var fmtbytes []byte
+	var offs = 0
 	if flags&WithBraces == WithBraces {
-		fmtstr = "{" + fmtstr + "}"
+		fmtbytes = make([]byte, 38)
+		fmtbytes[0] = '{'
+		fmtbytes[37] = '}'
+		offs = 1
+	} else {
+		fmtbytes = make([]byte, 36)
 	}
 
-	return fmt.Sprintf(fmtstr,
-		uuid[0:4],
-		uuid[4:6],
-		uuid[6:8],
-		uuid[8:10],
-		uuid[10:16])
+	upper := flags&UpperCase == UpperCase
+	tohex(fmtbytes[offs+0:offs+8], uuid[0:4], upper)
+	fmtbytes[offs+8] = '-'
+	tohex(fmtbytes[offs+9:offs+13], uuid[4:6], upper)
+	fmtbytes[offs+13] = '-'
+	tohex(fmtbytes[offs+14:offs+18], uuid[6:8], upper)
+	fmtbytes[offs+18] = '-'
+	tohex(fmtbytes[offs+19:offs+23], uuid[8:10], upper)
+	fmtbytes[offs+23] = '-'
+	tohex(fmtbytes[offs+24:], uuid[10:], upper)
+
+	return string(fmtbytes)
 }
+
+func tohex(dst []byte, src []byte, upper bool) {
+	const (
+		hexlower = "0123456789abcdef"
+		hexupper = "0123456789ABCDEF"
+	)
+	hexchar := hexlower
+	if upper {
+		hexchar = hexupper
+	}
+	for i, b := range src {
+		dst[i*2+0] = hexchar[(b&0xf0)>>4]
+		dst[i*2+1] = hexchar[b&0x0f]
+	}
+}
+
 func generateV4() (UUID, error) {
 	var uuid UUID
 

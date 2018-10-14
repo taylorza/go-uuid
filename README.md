@@ -1,4 +1,4 @@
-# UUID [![Build Status](https://travis-ci.org/taylorza/go-uuid.svg?branch=master)](https://travis-ci.org/taylorza/go-uuid)[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/taylorza/go-uuid)
+# UUID [![Build Status](https://travis-ci.org/taylorza/go-uuid.svg?branch=master)](https://travis-ci.org/taylorza/go-uuid) [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/taylorza/go-uuid)
 
 
 

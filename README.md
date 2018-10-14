@@ -1,4 +1,5 @@
 # UUID [![Build Status](https://travis-ci.org/taylorza/go-uuid.svg?branch=master)](https://travis-ci.org/taylorza/go-uuid)
+[![GoDoc](http://godoc.org/github.com/taylorza/go-ratelimiter)
 
 Package **uuid** implements version 4 UUID as defined in [RFC 4122](http://tools.ietf.org/html/rfc4122).
 

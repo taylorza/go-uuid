@@ -18,7 +18,7 @@ Use the 'go' command:
     // Create new UUID
     id, err := uuid.NewUUID()
     if err != nil {
-        fmt.Println("failed to create uuid : %v", err)
+        fmt.Println("failed to create uuid : ", err)
         return
     }
 
